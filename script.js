@@ -41,7 +41,32 @@ const setupCurrencies = async () => {
     (currencyKey) => currencyOptions[currencyKey]
   );
 
-  console.log(currencies);
+  populateSelectElement(fromCurrencyElem, currencies);
+  populateSelectElement(toCurrencyElem, currencies);
+};
+
+const setupEventListener = () => {
+  const formElement = document.getElementById("convertForm");
+
+  formElement.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const fromCurrency = document.getElementById("fromCurrency");
+    const toCurrency = document.getElementById("toCurrency");
+    const amount = document.getElementById("amount");
+
+    const convertResultElem = document.getElementById("convertResult");
+    try {
+      const rate = await getCurrencyRate(fromCurrency.value, toCurrency.value);
+      const amountValue = Number(amount.value);
+      const conversionResult = Number(amountValue * rate).toFixed(2);
+      convertResultElem.textContent = `${amountValue} ${fromCurrency.value} = ${conversionResult} ${toCurrency.value}`;
+    } catch (error) {
+      convertResultElem.textContent = `There was an error the conversion rate[${error.message}]`;
+      convertResultElem.classList.add("error");
+    }
+  });
 };
 
 setupCurrencies();
+setupEventListener();
